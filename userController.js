@@ -2,17 +2,18 @@ var User = require('./userModel');
 
 
 // Listing
-exports.index = function (req, res) {
-    const perPage = req.params.perPage || 5;
-    const page = req.params.page || 1;
+exports.index = async function(req, res) {
+    const perPage = parseInt(req.params.perPage) || 5;
+    const page = parseInt(req.params.page) || 1;
 
 
     if(req.query.search){
         try {
             const searchQuery = req.query.search;
-            const resultSet = User.find({name: searchQuery})
-                .skip((perPage * page) - perPage)
-                .limit(perPage);
+            const resultSet = await User.find({ 'name' : { '$regex' : searchQuery , '$options' : 'i' } })
+                .limit(perPage)
+                .skip((perPage * page) - perPage);
+
 
             res.status(200).json({
                 data: resultSet
@@ -20,24 +21,30 @@ exports.index = function (req, res) {
         }
         catch(err)
         {
+            console.log(err);
             res.status(500).json({
                 status: "error",
                 message: err,
             });
         }
     }else{
-        User.get(function (err, users) {
-            if (err) {
-                res.status(500).json({
-                    status: "error",
-                    message: err,
-                });
-            }
+        try {
+            const resultSet = await User.find({})
+                .limit(perPage)
+                .skip((perPage * page) - perPage);
+
             res.status(200).json({
-                status: "success",
-                data: users
+                data: resultSet
             });
-        });
+        }
+        catch(err)
+        {
+            console.log(err);
+            res.status(500).json({
+                status: "error",
+                message: err,
+            });
+        }
     }
 
 };

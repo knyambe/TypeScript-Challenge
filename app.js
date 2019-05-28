@@ -13,7 +13,7 @@ var usersRouter = require('./routes/users');
 var app = express();
 
 // Connect to Mongoose and set connection variable
-mongoose.connect('mongodb://mongo/users');
+mongoose.connect('mongodb://127.0.0.1:27017');
 var db = mongoose.connection;
 
 // Configure bodyparser to handle post requests
